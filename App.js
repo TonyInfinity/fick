@@ -11,16 +11,23 @@ import {
   Appbar, 
   Searchbar, 
   Badge, 
-  Chip
+  Chip,
+  DefaultTheme,
+  Provider as PaperProvider
 } from 'react-native-paper';
+import { createAppContainer } from 'react-navigation';
+import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+  
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+  }
+};
 
-/*
-const MusicRoute = () => <Text>Music</Text>;
-const AlbumsRoute = () => <Text>Albums</Text>;
-const RecentsRoute = () => <Text>Recents</Text>;
-*/
-
-export default class App extends React.Component {
+class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,26 +38,7 @@ export default class App extends React.Component {
   state = {
     firstQuery: '',
   };
-
-  /*
-  state = {
-    index: 0,
-    routes: [
-      { key: 'music', title: 'Music', icon: 'queue-music' },
-      { key: 'albums', title: 'Albums', icon: 'album' },
-      { key: 'recents', title: 'Recents', icon: 'history' },
-    ],
-  };
-
-  _handleIndexChange = index => this.setState({ index });
-
-  _renderScene = BottomNavigation.SceneMap({
-    music: MusicRoute,
-    albums: AlbumsRoute,
-    recents: RecentsRoute,
-  });
-  */
-
+  
   componentDidMount() {
     const url = 'https://gist.githubusercontent.com/TonyInfinity/6b49f01f4ee8c6e11f8b150c45269083/raw/c3b1c7eda3be36a1417cd62889ecea3a3e267e10/tiki_results.json?fbclid=IwAR1EDtd9xTNSfdsN0XiCCIMjs6V7LxqTNlg6K8yfNu-C-QxthgYLjlW2_JE'
     fetch(url)
@@ -101,23 +89,40 @@ export default class App extends React.Component {
   render() {
     const { search } = this.state;
     const { firstQuery } = this.state;
-  return (
+    return (
+      <PaperProvider theme={theme}>
     <View>
+      <StatusBar backgroundColor='#38006b' barStyle='light-content' />
       <Appbar.Header style={{paddingLeft: 8, paddingRight: 8}}>
       <Searchbar
         placeholder="Search"
         onChangeText={query => { this.setState({ firstQuery: query }); }}
         value={firstQuery}
-        style={{shadowOpacity: 0, borderRadius: 0}}
-      />
+        style={{shadowOpacity: 0, borderRadius: 0}} />
       </Appbar.Header>
-
       <View> 
         <FlatList
         data={this.state.dataSource}
         renderItem={this.renderItem} /> 
       </View>
-    </View>   
+    </View>  
+    </PaperProvider> 
+    );
+  }
+}
+
+class Male extends React.Component {
+  render() {
+    return (
+      <View><Text style={{fontSize: 30}}>Nam</Text></View>
+    );
+  }
+}
+
+class Female extends React.Component {
+  render() {
+    return (
+  <View><Text style={{fontSize: 30}}>Nữ</Text></View>
     );
   }
 }
@@ -129,3 +134,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#eceff1'
   },
 });
+
+const tabBarIcon = name => ({ tintColor }) => (
+  <MaterialCommunityIcons
+    style={{ backgroundColor: 'transparent' }}
+    name={name}
+    color={tintColor}
+    size={24}
+  />
+);
+
+const BottomTabMaterial = createMaterialBottomTabNavigator(
+  {
+    Home: {
+      screen: Home, 
+      navigationOptions: {
+        title: 'Home',
+        tabBarIcon: tabBarIcon('home')
+      }
+    },
+    Female: {
+      screen: Female,
+      navigationOptions: {
+        title: 'Nữ',
+        tabBarIcon: tabBarIcon('gender-female')
+      }
+    },
+    Male: {
+      screen: Male,
+      navigationOptions: {
+        title: 'Nam',
+        tabBarIcon: tabBarIcon('gender-male')
+      }
+    }
+  },
+  {
+    shifting: false,
+    activeColor: '#6200ee',
+    inactiveColor: '#828792',
+    barStyle: {
+      backgroundColor: '#f8f7f9',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderStyle: 'solid',
+      borderColor: '#d0cfd0',
+    },
+  }
+);
+
+export default createAppContainer(BottomTabMaterial);

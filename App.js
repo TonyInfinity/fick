@@ -1,8 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, FlatList, StatusBar } from 'react-native';
+import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions } from 'react-native';
 import { 
-  Button, 
-  BottomNavigation, 
+  Button,
   Text, 
   Card, 
   Avatar, 
@@ -10,15 +9,16 @@ import {
   Paragraph, 
   Appbar, 
   Searchbar, 
-  Badge, 
-  Chip,
+  Surface,
   DefaultTheme,
   Provider as PaperProvider
 } from 'react-native-paper';
 import { createAppContainer } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-  
+import GeneralStatusBarColor from './src/components/GeneralStatusBarColor';
+import { Platform } from '@unimodules/core';
+
 const theme = {
   ...DefaultTheme,
   roundness: 2,
@@ -72,7 +72,7 @@ class Home extends React.Component {
             <View>
               <Paragraph style={{color: 'orange'}}>{item.price}</Paragraph>
               <View>
-                <Button mode='outlined' style={{marginTop: 52}}>Fick!</Button>
+                <Button mode='outlined' style={{marginTop: 52}} onPress={() => console.log('Pressed')}>Fick!</Button>
               </View>
             </View>
           </Card.Content>
@@ -90,22 +90,26 @@ class Home extends React.Component {
     const { search } = this.state;
     const { firstQuery } = this.state;
     return (
-      <PaperProvider theme={theme}>
-    <View>
-      <StatusBar backgroundColor='#38006b' barStyle='light-content' />
-      <Appbar.Header style={{paddingLeft: 8, paddingRight: 8}}>
+    <PaperProvider theme={theme}>
+    <View style={{flex: 1}}>
+    <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
+      <Surface style={{paddingLeft: 15, paddingRight: 15, paddingTop: 7.5, paddingBottom: 15, elevation: 1}}>
       <Searchbar
         placeholder="Search"
         onChangeText={query => { this.setState({ firstQuery: query }); }}
         value={firstQuery}
-        style={{shadowOpacity: 0, borderRadius: 0}} />
-      </Appbar.Header>
+        style={{elevation: 1}} />
+      </Surface>
+
+      <ScrollView>
       <View> 
         <FlatList
         data={this.state.dataSource}
         renderItem={this.renderItem} /> 
       </View>
+      </ScrollView>
     </View>  
+   
     </PaperProvider> 
     );
   }
@@ -114,7 +118,9 @@ class Home extends React.Component {
 class Male extends React.Component {
   render() {
     return (
-      <View><Text style={{fontSize: 30}}>Nam</Text></View>
+      <View style={styles.banner}>
+        <Image source={require('./assets/food-banner.jpg')} style={{flex: 1}}/>
+      </View>
     );
   }
 }
@@ -131,8 +137,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#eceff1'
+    alignItems: 'center'
+    /* backgroundColor: '#eceff1' */
   },
+  banner: {
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 96,
+    height: 50.4
+  }
 });
 
 const tabBarIcon = name => ({ tintColor }) => (
@@ -169,7 +183,7 @@ const BottomTabMaterial = createMaterialBottomTabNavigator(
     }
   },
   {
-    shifting: false,
+    /* shifting: true,
     activeColor: '#6200ee',
     inactiveColor: '#828792',
     barStyle: {
@@ -177,6 +191,15 @@ const BottomTabMaterial = createMaterialBottomTabNavigator(
       borderTopWidth: StyleSheet.hairlineWidth,
       borderStyle: 'solid',
       borderColor: '#d0cfd0',
+      */
+     shifting: true,
+    activeColor: '#ffffff',
+    inactiveColor: '#eceff1',
+    barStyle: {
+      backgroundColor: '#6200ee',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderStyle: 'solid',
+      borderColor: '#6200ee',
     },
   }
 );

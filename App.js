@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions, AppRegistry } from 'react-native';
 import { 
   Button,
   Text, 
@@ -13,19 +13,17 @@ import {
   DefaultTheme,
   Provider as PaperProvider
 } from 'react-native-paper';
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GeneralStatusBarColor from './src/components/GeneralStatusBarColor';
 import { Platform } from '@unimodules/core';
+import ImageOverlay from 'react-native-image-overlay';
 
-const theme = {
-  ...DefaultTheme,
-  roundness: 2,
-  colors: {
-    ...DefaultTheme.colors,
-  }
-};
+import QuanAoNam from './screens/QuanAoNam';
+import DoLotNam from './screens/DoLotNam';
+import GiayDepNam from './screens/GiayDepNam';
+import PhuKienThoiTrangNam from './screens/PhuKienThoiTrangNam';
 
 class Home extends React.Component {
   constructor(props) {
@@ -61,6 +59,10 @@ class Home extends React.Component {
     this.setState({ search });
   };
 
+  static navigationOptions = {
+    header: null
+  }
+
   renderItem = ({item}) => {
     return (
       <View style={{padding: 15}}>
@@ -90,17 +92,15 @@ class Home extends React.Component {
     const { search } = this.state;
     const { firstQuery } = this.state;
     return (
-    <PaperProvider theme={theme}>
     <View style={{flex: 1}}>
     <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
-      <Surface style={{paddingLeft: 15, paddingRight: 15, paddingTop: 7.5, paddingBottom: 15, elevation: 1}}>
+      <Appbar.Header style={{paddingLeft: 15, paddingRight: 15, elevation: 1, marginTop: 0}}>
       <Searchbar
         placeholder="Search"
         onChangeText={query => { this.setState({ firstQuery: query }); }}
         value={firstQuery}
         style={{elevation: 1}} />
-      </Surface>
-
+      </Appbar.Header>
       <ScrollView>
       <View> 
         <FlatList
@@ -109,17 +109,52 @@ class Home extends React.Component {
       </View>
       </ScrollView>
     </View>  
-   
-    </PaperProvider> 
     );
   }
 }
 
 class Male extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: true
+    }
+  }
+
+  static navigationOptions = {
+    header: null
+  }
+
   render() {
     return (
-      <View style={styles.banner}>
-        <Image source={require('./assets/food-banner.jpg')} style={{flex: 1}}/>
+      <View style={{flex: 1}}>
+      <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
+      <Appbar.Header style={{elevation: 1, marginTop: 0}}>
+        <Appbar.BackAction />
+        <Appbar.Content title="Danh mục"/>
+      </Appbar.Header>
+      <ScrollView>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='red' height={150}>
+          <View>
+          <Button mode='outlined' onPress={() => this.props.navigation.navigate('QuanAoNam')}><Text style={{color: '#ffffff'}}>Quần áo nam</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='green' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('DoLotNam')}><Text style={{color: '#ffffff'}}>Đồ lót nam</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='blue' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('GiayDepNam')}><Text style={{color: '#ffffff'}}>Giày dép nam</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='yellow' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('PhuKienThoiTrangNam')}><Text style={{color: '#ffffff'}}>Phụ kiện thời trang nam</Text></Button>
+          </View>
+        </ImageOverlay>
+      </ScrollView>
       </View>
     );
   }
@@ -128,10 +163,90 @@ class Male extends React.Component {
 class Female extends React.Component {
   render() {
     return (
-  <View><Text style={{fontSize: 30}}>Nữ</Text></View>
+      <View><Text style={{fontSize: 30}}>Nữ</Text></View>
     );
   }
 }
+
+class Saved extends React.Component {
+  render() {
+    return (
+      <View style={{flex: 1}}>
+        <Text>Saved</Text>
+      </View>
+    );
+  }
+}
+
+const tabBarIcon = name => ({ tintColor }) => (
+  <MaterialCommunityIcons
+    style={{ backgroundColor: 'transparent' }}
+    name={name}
+    color={tintColor}
+    size={24}
+  />
+);
+
+const MaleStack = createStackNavigator({
+  Male: {
+    screen: Male
+  },
+  QuanAoNam: {
+    screen: QuanAoNam
+  },
+  DoLotNam: {
+    screen: DoLotNam
+  },
+  GiayDepNam: {
+    screen: GiayDepNam
+  },
+  PhuKienThoiTrangNam: {
+    screen: PhuKienThoiTrangNam
+  }
+});
+
+const BottomTabMaterial = createMaterialBottomTabNavigator ({
+    Home: {
+      screen: Home, 
+      navigationOptions: {
+        title: '',
+        tabBarIcon: tabBarIcon('home')
+      }
+    },
+    Female: {
+      screen: Female,
+      navigationOptions: {
+        title: '',
+        tabBarIcon: tabBarIcon('gender-female')
+      }
+    },
+    Male: {
+      screen: MaleStack,
+      navigationOptions: {
+        title: '',
+        tabBarIcon: tabBarIcon('gender-male')
+      }
+    },
+    Saved: {
+      screen: Saved,
+      navigationOptions: {
+        title: '',
+        tabBarIcon: tabBarIcon('heart')
+      }
+    }
+  },
+  {
+    shifting: true,
+    activeColor: '#ffffff',
+    inactiveColor: '#eceff1',
+    barStyle: {
+      backgroundColor: '#6200ee',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderStyle: 'solid',
+      borderColor: '#6200ee',
+    },
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -149,59 +264,9 @@ const styles = StyleSheet.create({
   }
 });
 
-const tabBarIcon = name => ({ tintColor }) => (
-  <MaterialCommunityIcons
-    style={{ backgroundColor: 'transparent' }}
-    name={name}
-    color={tintColor}
-    size={24}
-  />
-);
+/* AppRegistry.registerComponent('haha', () => MaleStack); */
 
-const BottomTabMaterial = createMaterialBottomTabNavigator(
-  {
-    Home: {
-      screen: Home, 
-      navigationOptions: {
-        title: 'Home',
-        tabBarIcon: tabBarIcon('home')
-      }
-    },
-    Female: {
-      screen: Female,
-      navigationOptions: {
-        title: 'Nữ',
-        tabBarIcon: tabBarIcon('gender-female')
-      }
-    },
-    Male: {
-      screen: Male,
-      navigationOptions: {
-        title: 'Nam',
-        tabBarIcon: tabBarIcon('gender-male')
-      }
-    }
-  },
-  {
-    /* shifting: true,
-    activeColor: '#6200ee',
-    inactiveColor: '#828792',
-    barStyle: {
-      backgroundColor: '#f8f7f9',
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderStyle: 'solid',
-      borderColor: '#d0cfd0',
-      */
-     shifting: true,
-    activeColor: '#ffffff',
-    inactiveColor: '#eceff1',
-    barStyle: {
-      backgroundColor: '#6200ee',
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderStyle: 'solid',
-      borderColor: '#6200ee',
-    },
-  }
-);
+const App = createAppContainer(BottomTabMaterial);
+export default App;
 
-export default createAppContainer(BottomTabMaterial);
+/* export default createAppContainer(BottomTabMaterial); */

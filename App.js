@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions, AppRegistry } from 'react-native';
+import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions, AppRegistry, ActivityIndicator } from 'react-native';
 import { 
   Button,
   Text, 
@@ -29,31 +29,44 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataSource: []
-    }
+      query: '', 
+      dataSource: [],
+      dataBackup: [],
+      isLoading: true
+    }; 
   }
 
   state = {
     firstQuery: '',
+    search: ''
+  };
+
+  searchFilterFunction = text => {    
+    const newData = this.arrayholder.filter(item => {      
+      const itemData = `${item.name.toUpperCase()}`;
+       const textData = text.toUpperCase();
+        
+       return itemData.indexOf(textData) > -1;    
+    });    
+    this.setState({ data: newData });  
   };
   
   componentDidMount() {
     const url = 'https://gist.githubusercontent.com/TonyInfinity/6b49f01f4ee8c6e11f8b150c45269083/raw/c3b1c7eda3be36a1417cd62889ecea3a3e267e10/tiki_results.json?fbclid=IwAR1EDtd9xTNSfdsN0XiCCIMjs6V7LxqTNlg6K8yfNu-C-QxthgYLjlW2_JE'
+    this.setState({ isLoading: true });  
     fetch(url)
     .then((response) => response.json())
     .then((responseJson) => {
       this.setState({
-        dataSource: responseJson.product
+        dataSource: responseJson.product,
+        dataBackup: responseJson.product,
+        isLoading: false
+      });
       })
-    })
     .catch((error) => {
       console.log(error)
     })
   }
-
-  state = {
-    search: '',
-  };
 
   updateSearch = search => {
     this.setState({ search });
@@ -89,28 +102,53 @@ class Home extends React.Component {
   }
 
   render() {
+    
     const { search } = this.state;
     const { firstQuery } = this.state;
+
+    if (this.state.isLoading) {  
+      return (  
+       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>  
+        <ActivityIndicator />  
+       </View>  
+      );  
+     }  
+     
     return (
     <View style={{flex: 1}}>
     <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
       <Appbar.Header style={{paddingLeft: 15, paddingRight: 15, elevation: 1, marginTop: 0}}>
       <Searchbar
         placeholder="Search"
-        onChangeText={query => { this.setState({ firstQuery: query }); }}
-        value={firstQuery}
+        value={this.state.query}
+        onChangeText={(text) => this.filterList(text)}
         style={{elevation: 1}} />
       </Appbar.Header>
       <ScrollView>
       <View> 
         <FlatList
+        extraData={this.state.dataSource}
         data={this.state.dataSource}
-        renderItem={this.renderItem} /> 
+        renderItem={this.renderItem} />
       </View>
       </ScrollView>
     </View>  
     );
   }
+
+  filterList = (text) => {  
+    var newData = this.state.dataBackup;  
+     newData = this.state.dataBackup.filter((item)=>{  
+     const itemData = item.name.toLowerCase()  
+     const textData = text.toLowerCase()  
+     return itemData.indexOf(textData)>-1  
+    });  
+    this.setState({  
+     query:text,  
+     dataSource: newData // after filter we are setting users to new array  
+    });  
+   }  
+
 }
 
 class Male extends React.Component {

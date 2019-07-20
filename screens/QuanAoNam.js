@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { 
   Button,
   Text, 
@@ -8,9 +8,7 @@ import {
   Title, 
   Paragraph, 
   Appbar, 
-  Searchbar, 
-  DefaultTheme,
-  Provider as PaperProvider
+  Searchbar
 } from 'react-native-paper';
 import GeneralStatusBarColor from '../src/components/GeneralStatusBarColor';
 import { Platform } from '@unimodules/core';
@@ -56,26 +54,29 @@ class QuanAoNam extends React.Component {
     
       renderItem = ({item}) => {
         return (
-          <View style={{padding: 15}}>
-            <Card>
-              <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
-              <View style={{width: '50%'}}>
-              <Card.Content>
-                <Paragraph>{item.name}</Paragraph>
-                <View>
-                  <Paragraph style={{color: 'orange'}}>{item.price}</Paragraph>
-                  <View>
-                    <Button mode='outlined' style={{marginTop: 52}} onPress={() => console.log('Pressed')}>Fick!</Button>
-                  </View>
-                </View>
-              </Card.Content>
+        <View style={{padding: 15, paddingBottom: 0}}>
+          <Card elevation={1}>
+            <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
+            <View style={{width: '50%'}}>
+            <Card.Content>
+            <View>
+              <TouchableOpacity onPress={() => Linking.openURL(item.image)} onLongPress={() => Linking.openURL('http://www.google.com')} activeColor='blue'>
+              <Paragraph style={{color: 'black'}}>{item.name}</Paragraph>
+              </TouchableOpacity>
+                <Paragraph style={{color: 'orange'}}>{item.price}</Paragraph>
+                {/*<View style={{width: '100%', height: '100%'}}>
+                    <Button mode='outlined' onPress={() => console.log('Pressed')}>Mở</Button>
+                </View>*/}
               </View>
-              <View style={{width: '50%'}}>
-                <Card.Cover source={{uri: item.image}}/>
-              </View> 
-              </View>
-              </Card>
-          </View>
+            </Card.Content>
+            </View>
+            <View style={{width: '50%'}}>
+              {/* <Card.Cover source={{uri: item.image}} />  */}
+              <Image source={{uri: item.image}} style={{height: 216}} />
+            </View> 
+            </View>
+            </Card>
+        </View>
         );
       }
       
@@ -87,11 +88,12 @@ class QuanAoNam extends React.Component {
         <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
         <Appbar.Header style={{elevation: 1, marginTop: 0}}>
         <Appbar.BackAction />
-        <Appbar.Content title="Quần Áo Nam"/>
+        <Appbar.Content title="Quần áo nam"/>
       </Appbar.Header>
           <ScrollView>
           <View> 
             <FlatList
+            extraData={this.dataSource}
             data={this.state.dataSource}
             renderItem={this.renderItem} /> 
           </View>

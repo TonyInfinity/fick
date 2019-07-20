@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, Dimensions, AppRegistry, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, FlatList, StatusBar, Image, ScrollView, ImageBackground, AppRegistry, ActivityIndicator, Linking } from 'react-native';
 import { 
   Button,
   Text, 
@@ -9,10 +9,9 @@ import {
   Paragraph, 
   Appbar, 
   Searchbar, 
-  Surface,
-  DefaultTheme,
-  Provider as PaperProvider
+  Surface
 } from 'react-native-paper';
+import { WebView } from 'react-native-webview';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -24,6 +23,14 @@ import QuanAoNam from './screens/QuanAoNam';
 import DoLotNam from './screens/DoLotNam';
 import GiayDepNam from './screens/GiayDepNam';
 import PhuKienThoiTrangNam from './screens/PhuKienThoiTrangNam';
+import QuanAoNu from './screens/QuanAoNu';
+import DoLotNu from './screens/DoLotNu';
+import GiayDepNu from './screens/GiayDepNu';
+import PhuKienThoiTrangNu from './screens/PhuKienThoiTrangNu';
+
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { shuffle } from 'lodash';
+import Modal from 'react-native-modal';
 
 class Home extends React.Component {
   constructor(props) {
@@ -38,17 +45,23 @@ class Home extends React.Component {
 
   state = {
     firstQuery: '',
-    search: ''
+    search: '',
+    showWebView: false,
+    isModalVisible: false
   };
 
   searchFilterFunction = text => {    
     const newData = this.arrayholder.filter(item => {      
       const itemData = `${item.name.toUpperCase()}`;
        const textData = text.toUpperCase();
-        
        return itemData.indexOf(textData) > -1;    
     });    
     this.setState({ data: newData });  
+  };
+
+  toggleModal = () => {
+    this.setState({ isModalVisible: !this.state.isModalVisible });
+    this.setState({ showWebView: !this.state.showWebView });
   };
   
   componentDidMount() {
@@ -58,7 +71,7 @@ class Home extends React.Component {
     .then((response) => response.json())
     .then((responseJson) => {
       this.setState({
-        dataSource: responseJson.product,
+        dataSource: shuffle(responseJson.product),
         dataBackup: responseJson.product,
         isLoading: false
       });
@@ -76,24 +89,37 @@ class Home extends React.Component {
     header: null
   }
 
+  renderContent() {
+    return (
+      <WebView
+        source={{
+          uri: this.state.webViewurl,
+       }}
+        startInLoadingState
+        scalesPageToFit
+        javaScriptEnabled
+        style={{ flex: 1 }}
+      />
+    );
+   }
+
   renderItem = ({item}) => {
     return (
-      <View style={{padding: 15}}>
-        <Card>
+      <View style={{padding: 15, paddingBottom: 0}}>
+        <Card elevation={1}>
           <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
           <View style={{width: '50%'}}>
           <Card.Content>
-            <Paragraph>{item.name}</Paragraph>
-            <View>
+          <View style={{flex: 1}}>
+            <TouchableOpacity onPress={() => {this.toggleModal(); this.setState({webViewurl: 'https://tiki.vn/ao-thun-nam-co-tron-biluxury-8-mau-sieu-mat-p21312399.html?src=category-page-914&2hi=0&spid=21312409'})}} onLongPress={() => Linking.openURL(item.image)} activeColor='blue'>
+              <Paragraph style={{color: 'black'}}>{item.name}</Paragraph>
+            </TouchableOpacity>
               <Paragraph style={{color: 'orange'}}>{item.price}</Paragraph>
-              <View>
-                <Button mode='outlined' style={{marginTop: 52}} onPress={() => console.log('Pressed')}>Fick!</Button>
-              </View>
             </View>
           </Card.Content>
           </View>
           <View style={{width: '50%'}}>
-            <Card.Cover source={{uri: item.image}}/>
+            <Image source={{uri: item.image}} style={{height: 216}} />
           </View> 
           </View>
           </Card>
@@ -102,10 +128,8 @@ class Home extends React.Component {
   }
 
   render() {
-    
     const { search } = this.state;
     const { firstQuery } = this.state;
-
     if (this.state.isLoading) {  
       return (  
        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>  
@@ -115,7 +139,18 @@ class Home extends React.Component {
      }  
      
     return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
+      <Modal isVisible={this.state.isModalVisible}>
+          <View style={{flex: 1}}>
+            <Surface elevation={1}>
+                 <View style={{width: '100%', height: 500}}>
+                  { this.renderContent() }
+                </View> 
+              <Button mode='contained' onPress={this.toggleModal} style={{borderRadius: 0}}>Đóng</Button>
+            </Surface>
+          </View>
+      </Modal>
+ 
     <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
       <Appbar.Header style={{paddingLeft: 15, paddingRight: 15, elevation: 1, marginTop: 0}}>
       <Searchbar
@@ -144,8 +179,8 @@ class Home extends React.Component {
      return itemData.indexOf(textData)>-1  
     });  
     this.setState({  
-     query:text,  
-     dataSource: newData // after filter we are setting users to new array  
+     query: text,  
+     dataSource: newData 
     });  
    }  
 
@@ -199,9 +234,48 @@ class Male extends React.Component {
 }
 
 class Female extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: true
+    }
+  }
+
+  static navigationOptions = {
+    header: null
+  }
+
   render() {
     return (
-      <View><Text style={{fontSize: 30}}>Nữ</Text></View>
+      <View style={{flex: 1}}>
+      <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
+      <Appbar.Header style={{elevation: 1, marginTop: 0}}>
+        <Appbar.BackAction />
+        <Appbar.Content title="Danh mục"/>
+      </Appbar.Header>
+      <ScrollView>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='red' height={150}>
+          <View>
+          <Button mode='outlined' onPress={() => this.props.navigation.navigate('QuanAoNu')}><Text style={{color: '#ffffff'}}>Quần áo nữ</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='green' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('DoLotNu')}><Text style={{color: '#ffffff'}}>Đồ lót nữ</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='blue' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('GiayDepNu')}><Text style={{color: '#ffffff'}}>Giày dép nữ</Text></Button>
+          </View>
+        </ImageOverlay>
+        <ImageOverlay source={require("./assets/men-clothes-banner.jpg")} rounded={0} overlayAlpha={0.2} overlayColor='yellow' height={150}>
+          <View>
+            <Button mode='outlined' onPress={() => this.props.navigation.navigate('PhuKienThoiTrangNu')}><Text style={{color: '#ffffff'}}>Phụ kiện thời trang nữ</Text></Button>
+          </View>
+        </ImageOverlay>
+      </ScrollView>
+      </View>
     );
   }
 }
@@ -243,6 +317,24 @@ const MaleStack = createStackNavigator({
   }
 });
 
+const FemaleStack = createStackNavigator({
+  Female: {
+    screen: Female
+  },
+  QuanAoNu: {
+    screen: QuanAoNu
+  },
+  DoLotNu: {
+    screen: DoLotNu
+  },
+  GiayDepNu: {
+    screen: GiayDepNu
+  },
+  PhuKienThoiTrangNu: {
+    screen: PhuKienThoiTrangNu
+  }
+});
+
 const BottomTabMaterial = createMaterialBottomTabNavigator ({
     Home: {
       screen: Home, 
@@ -252,7 +344,7 @@ const BottomTabMaterial = createMaterialBottomTabNavigator ({
       }
     },
     Female: {
-      screen: Female,
+      screen: FemaleStack,
       navigationOptions: {
         title: '',
         tabBarIcon: tabBarIcon('gender-female')
@@ -302,9 +394,5 @@ const styles = StyleSheet.create({
   }
 });
 
-/* AppRegistry.registerComponent('haha', () => MaleStack); */
-
 const App = createAppContainer(BottomTabMaterial);
-export default App;
-
-/* export default createAppContainer(BottomTabMaterial); */
+export default App; 

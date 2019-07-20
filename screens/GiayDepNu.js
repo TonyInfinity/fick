@@ -14,7 +14,7 @@ import GeneralStatusBarColor from '../src/components/GeneralStatusBarColor';
 import { Platform } from '@unimodules/core';
 import ImageOverlay from 'react-native-image-overlay';
 
-class PhuKienThoiTrangNam extends React.Component {
+class GiayDepNu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -88,7 +88,7 @@ class PhuKienThoiTrangNam extends React.Component {
         <GeneralStatusBarColor backgroundColor="#6200ee" barStyle="light-content" />
         <Appbar.Header style={{elevation: 1, marginTop: 0}}>
         <Appbar.BackAction />
-        <Appbar.Content title="Phụ kiện thời trang nam"/>
+        <Appbar.Content title="Giày dép nữ"/>
       </Appbar.Header>
           <ScrollView>
           <View> 
@@ -103,7 +103,7 @@ class PhuKienThoiTrangNam extends React.Component {
     }
 }
 
-export default PhuKienThoiTrangNam;
+export default GiayDepNu;
 
 const styles = StyleSheet.create({
     container: {
